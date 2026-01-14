@@ -55,26 +55,27 @@ jobs:
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
         
-    - name: Generate keystore for signing
+    - name: Setup keystore from environment
+      if: ${{ env.KEYSTORE_BASE64 != '' }}
       run: |
-        # NOTE: This generates a keystore with weak credentials for development/testing only.
-        # For production, use GitHub Secrets to store a secure keystore.
-        # See docs/ANDROID_SIGNING.md for production setup instructions.
-        mkdir -p android/app
-        keytool -genkey -v -keystore android/app/release-key.keystore \
-          -alias release-key \
-          -keyalg RSA -keysize 2048 -validity 10000 \
-          -storepass android -keypass android \
-          -dname "CN=Paper Toss, OU=Game Development, O=Paper Toss Game, L=City, S=State, C=US"
+        echo "${{ env.KEYSTORE_BASE64 }}" | base64 -d > android/app/release-key.keystore
+      env:
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
       
     - name: Create signing config
+      if: ${{ env.KEYSTORE_BASE64 != '' }}
       run: |
         cat > android/key.properties << EOF
-        storePassword=android
-        keyPassword=android
-        keyAlias=release-key
+        storePassword=${{ env.KEYSTORE_PASSWORD }}
+        keyPassword=${{ env.KEY_PASSWORD }}
+        keyAlias=${{ env.KEY_ALIAS }}
         storeFile=release-key.keystore
         EOF
+      env:
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
       
     - name: Build Signed Release APK
       run: cd android && ./gradlew assembleRelease --no-daemon
@@ -83,5 +84,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: paper-toss-release-apk
-        path: android/app/build/outputs/apk/release/app-release.apk
+        path: android/app/build/outputs/apk/release/app-release*.apk
         retention-days: 30
