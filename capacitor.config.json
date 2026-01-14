@@ -1,6 +1,6 @@
 {
-  "appId": "com.paperball.game",
-  "appName": "Bola de Papel",
+  "appId": "com.game.paper-toss",
+  "appName": "Paper Toss",
   "webDir": ".",
   "bundledWebRuntime": false,
   "server": {

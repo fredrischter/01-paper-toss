@@ -1,7 +1,7 @@
 {
-  "name": "Bola de Papel",
-  "short_name": "Paper Ball",
-  "description": "Jogo de arremesso de bola de papel no lixo",
+  "name": "Paper Toss",
+  "short_name": "Paper Toss",
+  "description": "A casual physics-based mobile game where players throw paper balls into office trash bins. Wind from fans, moving obstacles, and environmental interactions affect the trajectory, requiring precision and timing. Designed for short, addictive sessions, the game emphasizes mastery, perfect shots, and adapting to dynamic office layouts.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#e8f4f8",
