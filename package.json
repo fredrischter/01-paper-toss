@@ -12,9 +12,12 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "generate-sprites": "node scripts/generate-sprites.js",
-    "build": "npx cap copy",
-    "android:build-debug": "npm run build && npx cap sync android && cd android && ./gradlew assembleDebug",
-    "android:build-release": "npm run build && npx cap sync android && cd android && ./gradlew assembleRelease"
+    "build": "node -e \"const fs=require('fs');const path=require('path');if(!fs.existsSync('www'))fs.mkdirSync('www');fs.copyFileSync('index.html',path.join('www','index.html'));fs.copyFileSync('game.js',path.join('www','game.js'));\"",
+    "android:init": "npm run build && npx cap add android",
+    "android:sync": "npm run build && npx cap sync android",
+    "android:open": "npx cap open android",
+    "android:build": "npm run build && npx cap sync android && cd android && ./gradlew assembleRelease",
+    "android:build-debug": "npm run build && npx cap sync android && cd android && ./gradlew assembleDebug"
   },
   "keywords": [
     "game",
@@ -26,13 +29,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "phaser": "^3.70.0",
-    "@capacitor/android": "latest"
+    "phaser": "^3.70.0"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "canvas": "^3.2.1",
+    
     "jest": "^30.2.0",
     "@capacitor/cli": "latest"
-  }
+ }
 }
