@@ -39,6 +39,9 @@ jobs:
     - name: Sync Capacitor
       run: npx cap sync android
       
+    - name: Configure signing in build.gradle
+      run: python3 scripts/configure-android-signing.py
+      
     - name: Grant execute permission for gradlew
       run: chmod +x android/gradlew
       
@@ -52,12 +55,30 @@ jobs:
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
         
-    - name: Build Release APK
+    - name: Generate keystore for signing
+      run: |
+        mkdir -p android/app
+        keytool -genkey -v -keystore android/app/release-key.keystore \
+          -alias release-key \
+          -keyalg RSA -keysize 2048 -validity 10000 \
+          -storepass android -keypass android \
+          -dname "CN=Paper Toss, OU=Game Development, O=Paper Toss Game, L=City, S=State, C=US"
+      
+    - name: Create signing config
+      run: |
+        cat > android/key.properties << EOF
+        storePassword=android
+        keyPassword=android
+        keyAlias=release-key
+        storeFile=release-key.keystore
+        EOF
+      
+    - name: Build Signed Release APK
       run: cd android && ./gradlew assembleRelease --no-daemon
       
-    - name: Upload Release APK artifact
+    - name: Upload Signed Release APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: paper-toss-release-apk
-        path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+        path: android/app/build/outputs/apk/release/app-release.apk
         retention-days: 30
