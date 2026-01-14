@@ -12,7 +12,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "generate-sprites": "node scripts/generate-sprites.js",
-    "build": "node -e \"const fs=require('fs');const path=require('path');if(!fs.existsSync('www'))fs.mkdirSync('www');fs.copyFileSync('index.html',path.join('www','index.html'));fs.copyFileSync('game.js',path.join('www','game.js'));\"",
+    "build": "node -e \"const fs=require('fs');const path=require('path');function copyDir(src,dest){if(!fs.existsSync(dest))fs.mkdirSync(dest,{recursive:true});const entries=fs.readdirSync(src,{withFileTypes:true});for(let entry of entries){const srcPath=path.join(src,entry.name);const destPath=path.join(dest,entry.name);if(entry.isDirectory())copyDir(srcPath,destPath);else fs.copyFileSync(srcPath,destPath);}}if(!fs.existsSync('www'))fs.mkdirSync('www');fs.copyFileSync('index.html',path.join('www','index.html'));if(fs.existsSync('js'))copyDir('js','www/js');if(fs.existsSync('lib'))copyDir('lib','www/lib');if(fs.existsSync('assets'))copyDir('assets','www/assets');\"",
     "android:init": "npm run build && npx cap add android",
     "android:sync": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",
@@ -28,14 +28,15 @@
   ],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "phaser": "^3.70.0"
-  },
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "canvas": "^3.2.1",
-    
     "jest": "^30.2.0",
-    "@capacitor/cli": "latest"
- }
+    "@capacitor/cli": "^6.0.0"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "phaser": "^3.70.0"
+  }
 }
