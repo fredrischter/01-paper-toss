@@ -15,15 +15,18 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
-*.sw
-
-p
+*.swp
 *.swo
 *.swn
 
 # Build outputs (if any)
 dist/
 build/
+
+# Capacitor generated directories
+android/
+ios/
+www/
 
 # Keep generated assets
 !assets/
