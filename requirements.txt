@@ -1,0 +1,74 @@
+# Game Structure POC Requirements
+
+## Game Engine
+- HTML5 Game Engine: Phaser 3 (v3.70.0+)
+  - Mature, well-documented framework
+  - Built-in sprite animation system
+  - Cross-platform support (mobile & desktop)
+  - Active community and extensive plugins
+
+## Core Features
+
+### Responsive Design
+- Must be playable on any screen size
+- Adaptive layout for mobile and desktop
+- UI elements positioned at screen corners and edges:
+  - Top-left: Menu button
+  - Top-right: Sound toggle button
+  - Middle-top: Score/status display
+  - Middle-bottom: Game title/info
+  - Bottom-left: D-pad controls (mobile)
+  - Bottom-right: Action button (mobile)
+
+### Player Character (Sprite)
+- Animated sprite with multiple states
+- Spritesheet-based animations:
+  - Standing: 1 frame
+  - Walking Right: 8 frames
+  - Walking Left: 8 frames
+  - Walking Up: 8 frames
+  - Walking Down: 8 frames
+  - Direction transitions: Additional frames
+  - Jumping Right: 8 frames
+  - Jumping Left: 8 frames
+  - Jumping Up: 8 frames
+  - Jumping Down: 8 frames
+
+### Controls
+- Keyboard support:
+  - Arrow keys or WASD for directional movement
+  - Space bar or specific key for action (jump)
+- Touch controls for mobile:
+  - On-screen D-pad for directional movement
+  - Action button for jumping
+- Responsive control visibility (hide D-pad on desktop)
+
+### Audio
+- Background music/sound
+- Toggle button (top-right corner)
+- Persistent state (remember user preference)
+
+### UI Elements
+- All UI buttons from spritesheet
+- Menu button functionality
+- Sound toggle button
+- Responsive positioning
+
+## Technical Requirements
+- Pure HTML5 (no compilation needed for basic version)
+- JavaScript ES6+
+- Responsive canvas that scales to viewport
+- Touch and mouse event support
+- Asset loading system
+- Cross-browser compatibility
+
+## Assets Needed
+- Character spritesheet (PNG with all animation frames)
+- UI spritesheet (buttons, D-pad, etc.)
+- Background music file (MP3/OGG)
+- Sound effects (optional)
+
+## Browser Support
+- Modern browsers (Chrome, Firefox, Safari, Edge)
+- Mobile browsers (iOS Safari, Chrome Mobile)
+- Progressive Web App (PWA) capable

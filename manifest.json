@@ -1,0 +1,10 @@
+{
+  "name": "Bola de Papel",
+  "short_name": "Paper Ball",
+  "description": "Jogo de arremesso de bola de papel no lixo",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#e8f4f8",
+  "theme_color": "#b8d4e0",
+  "orientation": "any"
+}
