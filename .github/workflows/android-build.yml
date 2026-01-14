@@ -57,6 +57,9 @@ jobs:
         
     - name: Generate keystore for signing
       run: |
+        # NOTE: This generates a keystore with weak credentials for development/testing only.
+        # For production, use GitHub Secrets to store a secure keystore.
+        # See docs/ANDROID_SIGNING.md for production setup instructions.
         mkdir -p android/app
         keytool -genkey -v -keystore android/app/release-key.keystore \
           -alias release-key \

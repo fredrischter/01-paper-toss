@@ -40,21 +40,15 @@ def configure_signing():
         print("Error: Could not find required sections in build.gradle")
         sys.exit(1)
     
-    # Insert keystore properties loading after plugin declaration
-    keystore_config = '''
-def keystorePropertiesFile = rootProject.file("key.properties")
-def keystoreProperties = new Properties()
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-}
+    # Process insertions in reverse order to avoid line number recalculation
+    # 1. Insert signingConfig reference in release buildType (highest line number)
+    signing_ref = '''            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.release
+            }
 '''
-    lines.insert(plugin_line + 1, keystore_config)
+    lines.insert(release_line + 1, signing_ref)
     
-    # Adjust line numbers after insertion
-    buildtypes_line += 1
-    release_line += 1
-    
-    # Insert signingConfigs before buildTypes
+    # 2. Insert signingConfigs before buildTypes (middle line number)
     signing_configs = '''    
     signingConfigs {
         release {
@@ -69,15 +63,15 @@ if (keystorePropertiesFile.exists()) {
 '''
     lines.insert(buildtypes_line, signing_configs)
     
-    # Adjust release_line after insertion
-    release_line += 1
-    
-    # Insert signingConfig reference in release buildType
-    signing_ref = '''            if (keystorePropertiesFile.exists()) {
-                signingConfig signingConfigs.release
-            }
+    # 3. Insert keystore properties loading after plugin declaration (lowest line number)
+    keystore_config = '''
+def keystorePropertiesFile = rootProject.file("key.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
 '''
-    lines.insert(release_line + 1, signing_ref)
+    lines.insert(plugin_line + 1, keystore_config)
     
     # Write back
     with open(BUILD_GRADLE_PATH, 'w') as f:
