@@ -11,7 +11,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "generate-sprites": "node scripts/generate-sprites.js"
+    "generate-sprites": "node scripts/generate-sprites.js",
+    "android:build-debug": "npm run build && npx cap sync android && cd android && ./gradlew assembleDebug",
+    "android:build-release": "npm run build && npx cap sync android && cd android && ./gradlew assembleRelease"
   },
   "keywords": [
     "game",
