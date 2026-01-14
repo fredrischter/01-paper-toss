@@ -63,4 +63,4 @@ After a successful build, the signed APK can be downloaded from GitHub Actions a
 - Artifact name: `paper-toss-release-apk`
 - File: `app-release.apk`
 
-The APK is signed and ready for distribution (TestFlight, Play Store, or direct installation).
+The APK is signed and ready for distribution to Google Play Console, direct distribution, or other Android app stores.
