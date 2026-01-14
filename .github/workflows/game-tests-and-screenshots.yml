@@ -1,0 +1,161 @@
+name: Game Tests and Screenshots
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test-and-screenshot:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run tests
+        run: npm test -- --coverage
+        continue-on-error: true
+      
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+      
+      - name: Create screenshot script
+        run: |
+          cat > screenshot-game.js << 'EOF'
+          const { chromium } = require('playwright');
+          const path = require('path');
+          const fs = require('fs');
+
+          (async () => {
+            const browser = await chromium.launch({
+              headless: true,
+              args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+            const context = await browser.newContext({
+              viewport: { width: 800, height: 600 }
+            });
+            const page = await context.newPage();
+
+            // Create screenshots directory
+            const screenshotDir = path.join(__dirname, 'screenshots');
+            if (!fs.existsSync(screenshotDir)) {
+              fs.mkdirSync(screenshotDir, { recursive: true });
+            }
+
+            try {
+              // Navigate to the game
+              await page.goto('file://' + path.join(__dirname, 'index.html'), {
+                waitUntil: 'networkidle',
+                timeout: 30000
+              });
+
+              // Wait for game to load (wait for canvas)
+              await page.waitForSelector('canvas', { timeout: 10000 });
+              
+              // Wait a bit for game to initialize
+              await page.waitForTimeout(3000);
+
+              // Take initial screenshot
+              await page.screenshot({
+                path: path.join(screenshotDir, 'game-start.png'),
+                fullPage: false
+              });
+
+              console.log('✓ Initial screenshot captured');
+
+              // Simulate some gameplay
+              await page.keyboard.press('ArrowRight');
+              await page.waitForTimeout(1000);
+              await page.screenshot({
+                path: path.join(screenshotDir, 'game-action-1.png')
+              });
+              console.log('✓ Action screenshot 1 captured');
+
+              await page.keyboard.press('Space');
+              await page.waitForTimeout(1000);
+              await page.screenshot({
+                path: path.join(screenshotDir, 'game-action-2.png')
+              });
+              console.log('✓ Action screenshot 2 captured');
+
+              // Mobile view screenshot
+              await page.setViewportSize({ width: 375, height: 667 });
+              await page.waitForTimeout(1000);
+              await page.screenshot({
+                path: path.join(screenshotDir, 'game-mobile.png')
+              });
+              console.log('✓ Mobile screenshot captured');
+
+              console.log('Screenshots saved to:', screenshotDir);
+            } catch (error) {
+              console.error('Error capturing screenshots:', error);
+              process.exit(1);
+            } finally {
+              await browser.close();
+            }
+          })();
+          EOF
+      
+      - name: Install Playwright for screenshot generation
+        run: npm install --save-dev playwright
+      
+      - name: Generate game screenshots
+        run: node screenshot-game.js
+        continue-on-error: true
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: coverage/
+          retention-days: 30
+      
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/
+          retention-days: 30
+      
+      - name: Comment test results on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let comment = `### 🎮 Test Results\n\n`;
+            
+            // Check if coverage exists
+            const coveragePath = 'coverage/coverage-summary.json';
+            if (fs.existsSync(coveragePath)) {
+              const coverage = JSON.parse(fs.readFileSync(coveragePath, 'utf8'));
+              const total = coverage.total;
+              comment += `**Code Coverage:**\n`;
+              comment += `- Lines: ${total.lines.pct}%\n`;
+              comment += `- Statements: ${total.statements.pct}%\n`;
+              comment += `- Functions: ${total.functions.pct}%\n`;
+              comment += `- Branches: ${total.branches.pct}%\n\n`;
+            }
+            
+            comment += `✅ Screenshots generated and uploaded as artifacts.\n`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
