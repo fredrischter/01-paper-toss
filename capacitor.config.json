@@ -1,5 +1,5 @@
 {
-  "appId": "com.game.paper-toss",
+  "appId": "com.game.papertoss",
   "appName": "Paper Toss",
   "webDir": ".",
   "bundledWebRuntime": false,
