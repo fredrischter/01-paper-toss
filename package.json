@@ -26,12 +26,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "phaser": "^3.70.0"
+    "phaser": "^3.70.0",
+    "@capacitor/android": "latest"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "canvas": "^3.2.1",
     "jest": "^30.2.0",
     "@capacitor/cli": "latest"
- }
+  }
 }
