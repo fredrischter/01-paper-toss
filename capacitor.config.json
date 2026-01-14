@@ -1,9 +1,1 @@
-{
-  "appId": "com.game.papertoss",
-  "appName": "Paper Toss",
-  "webDir": ".",
-  "bundledWebRuntime": false,
-  "server": {
-    "androidScheme": "https"
-  }
-}
+{\n  "appId": "com.example.01papertoss",\n  "appName": "01 Paper Toss",\n  "bundledWebRuntime": false,\n  "webDir": "www",\n  "plugins": {\n    "cordova-plugin-badge": {},\n    "cordova-plugin-device": {},\n    "cordova-plugin-inappbrowser": {},\n    "cordova-plugin-whitelist": {}\n  }\n}
