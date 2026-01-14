@@ -69,7 +69,7 @@ jobs:
         storePassword=${{ env.KEYSTORE_PASSWORD }}
         keyPassword=${{ env.KEY_PASSWORD }}
         keyAlias=${{ env.KEY_ALIAS }}
-        storeFile=release-key.keystore
+        storeFile=app/release-key.keystore
         EOF
       env:
         KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
