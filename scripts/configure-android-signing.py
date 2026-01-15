@@ -84,8 +84,9 @@ if (keystorePropertiesFile.exists()) {
 
 def patch_java_version():
     """
-    Patch Capacitor's auto-generated build.gradle to use Java 17
-    This is needed because Capacitor 7 defaults to Java 21 but CI uses Java 17
+    Patch Capacitor's auto-generated build.gradle to use Java 17.
+    Capacitor 7 defaults to Java 21, but this ensures compatibility with Java 17
+    which is currently used by the CI workflow on the main branch.
     """
     if not os.path.exists(CAPACITOR_BUILD_GRADLE_PATH):
         print(f"Note: {CAPACITOR_BUILD_GRADLE_PATH} not found, skipping Java version patch")
@@ -94,17 +95,12 @@ def patch_java_version():
     with open(CAPACITOR_BUILD_GRADLE_PATH, 'r') as f:
         content = f.read()
     
-    # Check if already patched
-    if "VERSION_17" in content and "VERSION_21" not in content:
-        print(f"✓ Java version already patched in {CAPACITOR_BUILD_GRADLE_PATH}")
-        return
-    
     # Replace VERSION_21 with VERSION_17
     original_content = content
     content = re.sub(r'JavaVersion\.VERSION_21', 'JavaVersion.VERSION_17', content)
     
     if content == original_content:
-        print(f"Note: No Java version found to patch in {CAPACITOR_BUILD_GRADLE_PATH}")
+        print(f"✓ No Java 21 references found in {CAPACITOR_BUILD_GRADLE_PATH} (already compatible)")
         return
     
     with open(CAPACITOR_BUILD_GRADLE_PATH, 'w') as f:
