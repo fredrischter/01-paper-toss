@@ -22,7 +22,9 @@
     "android:open": "npx cap open android",
     "android:build": "npm run build && npx cap sync android && cd android && ./gradlew assembleRelease",
     "android:build-debug": "npm run build && npx cap sync android && cd android && ./gradlew assembleDebug",
-    "android:build-debug:java17": "npm run build && npx cap sync android && npm run android:patch-java17 && cd android && ./gradlew assembleDebug"
+    "android:build-debug:java17": "npm run build && npx cap sync android && npm run android:patch-java17 && cd android && ./gradlew assembleDebug",
+    "android:bundle": "npm run build && npx cap sync android && cd android && ./gradlew bundleRelease",
+    "android:bundle:java17": "npm run build && npx cap sync android && npm run android:patch-java17 && cd android && ./gradlew bundleRelease"
   },
   "keywords": [
     "game",

@@ -17,6 +17,17 @@ The Android app version is managed through a centralized version file (`android-
 - **versionCode**: Integer that must be incremented for each release (required by Google Play)
 - **versionName**: Human-readable version string (e.g., "1.0.0", "1.2.3")
 
+## Building for Google Play Store
+
+Google Play Store requires Android App Bundles (AAB) for uploads. The CI/CD workflow automatically builds both APK and AAB files.
+
+### Build Outputs
+
+- **APK**: For direct installation on devices (`app-release.apk`)
+- **AAB**: For Google Play Store uploads (`app-release.aab`)
+
+The AAB format is required by Google Play Store and provides better app distribution optimization.
+
 ## Automatic Version Increment (CI/CD)
 
 On the **main branch**, the CI/CD workflow automatically:
@@ -41,6 +52,22 @@ npm run version:increment
 ```
 
 This increments the version code by 1 and updates `android-version.json`.
+
+### Build Release APK
+
+```bash
+npm run android:build
+# With Java 17: npm run android:build:java17
+```
+
+### Build Release Bundle (AAB) for Google Play
+
+```bash
+npm run android:bundle
+# With Java 17: npm run android:bundle:java17
+```
+
+The AAB file will be located at `android/app/build/outputs/bundle/release/app-release.aab`
 
 ### Update Version Name
 

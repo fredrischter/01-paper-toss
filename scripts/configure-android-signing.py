@@ -52,8 +52,9 @@ def configure_signing():
         sys.exit(1)
     
     # Process insertions in reverse order to avoid line number recalculation
-    # 1. Insert signingConfig reference in release buildType (highest line number)
-    signing_ref = '''            if (keystorePropertiesFile.exists()) {
+    # 1. Insert signingConfig reference and debuggable false in release buildType (highest line number)
+    signing_ref = '''            debuggable false
+            if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.release
             }
 '''
