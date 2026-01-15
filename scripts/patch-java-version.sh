@@ -14,8 +14,14 @@ fi
 
 echo "Patching $CAPACITOR_BUILD_GRADLE to use Java 17..."
 
-# Replace VERSION_21 with VERSION_17
-sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' "$CAPACITOR_BUILD_GRADLE"
+# Replace VERSION_21 with VERSION_17 (cross-platform compatible)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    sed -i '' 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' "$CAPACITOR_BUILD_GRADLE"
+else
+    # Linux and others
+    sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' "$CAPACITOR_BUILD_GRADLE"
+fi
 
 echo "✓ Patched successfully"
 echo ""
