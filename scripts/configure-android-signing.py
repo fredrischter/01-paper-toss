@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """
-Script to configure Android APK signing in build.gradle
-and patch Java version for compatibility
+Script to configure Android APK signing in build.gradle,
+patch Java version for compatibility, and set version code from android-version.json
 """
 
 import os
 import sys
 import re
+import json
 
 BUILD_GRADLE_PATH = "android/app/build.gradle"
+VERSION_FILE = "android-version.json"
 
 # Capacitor files that need Java version patching
 CAPACITOR_GRADLE_FILES = [
@@ -131,8 +133,48 @@ def patch_java_version():
     else:
         print(f"✓ All Capacitor files already compatible with Java 17")
 
+def set_version_code():
+    """
+    Set the Android version code and version name from android-version.json
+    """
+    if not os.path.exists(BUILD_GRADLE_PATH):
+        print(f"Error: {BUILD_GRADLE_PATH} not found")
+        sys.exit(1)
+    
+    if not os.path.exists(VERSION_FILE):
+        print(f"Warning: {VERSION_FILE} not found, skipping version code update")
+        return
+    
+    # Read version from file
+    with open(VERSION_FILE, 'r') as f:
+        version_data = json.load(f)
+    
+    version_code = version_data.get('versionCode', 1)
+    version_name = version_data.get('versionName', '1.0.0')
+    
+    # Read build.gradle
+    with open(BUILD_GRADLE_PATH, 'r') as f:
+        content = f.read()
+    
+    # Replace versionCode and versionName
+    original_content = content
+    content = re.sub(r'versionCode\s+\d+', f'versionCode {version_code}', content)
+    content = re.sub(r'versionName\s+"[^"]*"', f'versionName "{version_name}"', content)
+    
+    if content == original_content:
+        print(f"✓ Version code already set to {version_code} in {BUILD_GRADLE_PATH}")
+        return
+    
+    # Write back
+    with open(BUILD_GRADLE_PATH, 'w') as f:
+        f.write(content)
+    
+    print(f"✓ Updated {BUILD_GRADLE_PATH}: versionCode={version_code}, versionName={version_name}")
+
 if __name__ == "__main__":
     # First patch Java version if needed
     patch_java_version()
+    # Set version code from android-version.json
+    set_version_code()
     # Then configure signing
     configure_signing()

@@ -58,6 +58,19 @@ jobs:
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
         
+    - name: Increment version code for release
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: node scripts/increment-version.js
+      
+    - name: Commit and push version increment
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add android-version.json
+        git commit -m "chore: increment version code [skip ci]" || echo "No version changes to commit"
+        git push || echo "No changes to push"
+        
     - name: Setup keystore from environment
       if: ${{ env.KEYSTORE_BASE64 != '' }}
       run: |
