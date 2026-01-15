@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """
 Script to configure Android APK signing in build.gradle
+and patch Java version for compatibility
 """
 
 import os
 import sys
+import re
 
 BUILD_GRADLE_PATH = "android/app/build.gradle"
+CAPACITOR_BUILD_GRADLE_PATH = "android/app/capacitor.build.gradle"
 
 def configure_signing():
     if not os.path.exists(BUILD_GRADLE_PATH):
@@ -79,5 +82,38 @@ if (keystorePropertiesFile.exists()) {
     
     print(f"✓ Android signing configuration applied to {BUILD_GRADLE_PATH}")
 
+def patch_java_version():
+    """
+    Patch Capacitor's auto-generated build.gradle to use Java 17
+    This is needed because Capacitor 7 defaults to Java 21 but CI uses Java 17
+    """
+    if not os.path.exists(CAPACITOR_BUILD_GRADLE_PATH):
+        print(f"Note: {CAPACITOR_BUILD_GRADLE_PATH} not found, skipping Java version patch")
+        return
+    
+    with open(CAPACITOR_BUILD_GRADLE_PATH, 'r') as f:
+        content = f.read()
+    
+    # Check if already patched
+    if "VERSION_17" in content and "VERSION_21" not in content:
+        print(f"✓ Java version already patched in {CAPACITOR_BUILD_GRADLE_PATH}")
+        return
+    
+    # Replace VERSION_21 with VERSION_17
+    original_content = content
+    content = re.sub(r'JavaVersion\.VERSION_21', 'JavaVersion.VERSION_17', content)
+    
+    if content == original_content:
+        print(f"Note: No Java version found to patch in {CAPACITOR_BUILD_GRADLE_PATH}")
+        return
+    
+    with open(CAPACITOR_BUILD_GRADLE_PATH, 'w') as f:
+        f.write(content)
+    
+    print(f"✓ Patched {CAPACITOR_BUILD_GRADLE_PATH} to use Java 17")
+
 if __name__ == "__main__":
+    # First patch Java version if needed
+    patch_java_version()
+    # Then configure signing
     configure_signing()
