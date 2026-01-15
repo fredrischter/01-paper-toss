@@ -2,15 +2,23 @@
 
 ## Overview
 
-Capacitor 7 requires **Java 21** for building Android applications. However, we provide support for local development with Java 17.
+Capacitor 7 requires **Java 21** for building Android applications. However, this project currently uses **Java 17 with a compatibility patch** for both CI and local development until Java 21 is widely available.
 
 ## CI/CD (GitHub Actions)
 
-The CI/CD pipeline is configured to use **Java 21** automatically. No additional steps are needed.
+The CI/CD pipeline uses **Java 17** with an automatic patch that modifies Capacitor's generated files to be compatible with Java 17.
+
+### How CI Works
+1. Java 17 is set up in the workflow
+2. Capacitor generates Android files (which default to Java 21)
+3. A patch script automatically converts them to Java 17
+4. The build completes successfully
+
+**Note:** Once this PR is merged to main, we can upgrade the CI to use Java 21 directly by updating the workflow on the main branch.
 
 ## Local Development
 
-### Option 1: Use Java 21 (Recommended)
+### Option 1: Use Java 21 (Recommended for Future)
 
 Install Java 21 on your machine and use the standard build commands:
 
@@ -19,7 +27,7 @@ npm run android:init          # Initialize Android platform
 npm run android:build-debug   # Build debug APK
 ```
 
-### Option 2: Use Java 17 (If Java 21 is not available)
+### Option 2: Use Java 17 (Current Standard)
 
 If you only have Java 17 installed, use the special Java 17 commands:
 
