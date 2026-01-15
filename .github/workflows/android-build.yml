@@ -58,6 +58,7 @@ jobs:
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
         
+    # Version increment happens here, before release build, so it's included in the release APK
     - name: Increment version code for release
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: node scripts/increment-version.js
@@ -69,7 +70,13 @@ jobs:
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git add android-version.json
         git commit -m "chore: increment version code [skip ci]" || echo "No version changes to commit"
+        git remote set-url origin https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
         git push || echo "No changes to push"
+    
+    # Re-run configure script to apply the new version to build.gradle
+    - name: Apply updated version to build.gradle
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: python3 scripts/configure-android-signing.py
         
     - name: Setup keystore from environment
       if: ${{ env.KEYSTORE_BASE64 != '' }}
