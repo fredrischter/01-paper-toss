@@ -78,11 +78,17 @@ jobs:
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
       
     - name: Build Signed Release Bundle
+      if: ${{ env.KEYSTORE_BASE64 != '' }}
       run: cd android && ./gradlew bundleRelease --no-daemon
+      env:
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
       
     - name: Upload Signed Release Bundle artifact
+      if: ${{ env.KEYSTORE_BASE64 != '' }}
       uses: actions/upload-artifact@v4
       with:
         name: paper-toss-release-bundle
         path: android/app/build/outputs/bundle/release/app-release.aab
         retention-days: 30
+      env:
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
