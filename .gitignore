@@ -24,7 +24,26 @@ dist/
 build/
 
 # Capacitor generated directories
-android/
+android/*
+!android/variables.gradle
+!android/build.gradle
+!android/gradle.properties
+!android/settings.gradle
+!android/app/
+android/app/*
+!android/app/build.gradle
+!android/app/proguard-rules.pro
+!android/app/src/
+android/app/src/*
+!android/app/src/main/
+android/app/src/main/*
+!android/app/src/main/AndroidManifest.xml
+android/app/src/main/assets/
+android/app/build/
+android/build/
+android/.gradle/
+android/.idea/
+android/local.properties
 ios/
 www/
 
