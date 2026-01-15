@@ -46,7 +46,13 @@ cd android && ./gradlew assembleDebug
 
 ## How It Works
 
-The `patch-java-version.sh` script modifies the auto-generated `android/app/capacitor.build.gradle` file to use Java 17 instead of Java 21. This file is regenerated every time you run `npx cap sync android`, so you'll need to re-run the patch script if you sync again.
+The `patch-java-version.sh` script modifies multiple Capacitor-generated files to use Java 17 instead of Java 21:
+
+- `android/app/capacitor.build.gradle` - App-specific Capacitor configuration
+- `node_modules/@capacitor/android/capacitor/build.gradle` - Capacitor Android library
+- `android/capacitor-cordova-android-plugins/build.gradle` - Cordova plugins compatibility layer
+
+These files are regenerated/restored when you run `npx cap sync android` or reinstall node_modules, so you'll need to re-run the patch script after those operations.
 
 ## Checking Your Java Version
 

@@ -9,7 +9,13 @@ import sys
 import re
 
 BUILD_GRADLE_PATH = "android/app/build.gradle"
-CAPACITOR_BUILD_GRADLE_PATH = "android/app/capacitor.build.gradle"
+
+# Capacitor files that need Java version patching
+CAPACITOR_GRADLE_FILES = [
+    "android/app/capacitor.build.gradle",
+    "node_modules/@capacitor/android/capacitor/build.gradle",
+    "android/capacitor-cordova-android-plugins/build.gradle"
+]
 
 def configure_signing():
     if not os.path.exists(BUILD_GRADLE_PATH):
@@ -84,29 +90,46 @@ if (keystorePropertiesFile.exists()) {
 
 def patch_java_version():
     """
-    Patch Capacitor's auto-generated build.gradle to use Java 17.
+    Patch Capacitor's auto-generated build.gradle files to use Java 17.
     Capacitor 7 defaults to Java 21, but this ensures compatibility with Java 17
     which is currently used by the CI workflow on the main branch.
+    
+    Patches multiple Gradle files:
+    - android/app/capacitor.build.gradle (app-specific Capacitor config)
+    - node_modules/@capacitor/android/capacitor/build.gradle (Capacitor library)
+    - android/capacitor-cordova-android-plugins/build.gradle (Cordova plugins)
     """
-    if not os.path.exists(CAPACITOR_BUILD_GRADLE_PATH):
-        print(f"Note: {CAPACITOR_BUILD_GRADLE_PATH} not found, skipping Java version patch")
-        return
+    patched_count = 0
+    skipped_count = 0
     
-    with open(CAPACITOR_BUILD_GRADLE_PATH, 'r') as f:
-        content = f.read()
+    for gradle_file in CAPACITOR_GRADLE_FILES:
+        if not os.path.exists(gradle_file):
+            print(f"⊘ Skipping {gradle_file} (not found)")
+            skipped_count += 1
+            continue
+        
+        with open(gradle_file, 'r') as f:
+            content = f.read()
+        
+        # Replace VERSION_21 with VERSION_17
+        original_content = content
+        content = re.sub(r'JavaVersion\.VERSION_21', 'JavaVersion.VERSION_17', content)
+        
+        if content == original_content:
+            print(f"⊘ Skipping {gradle_file} (already patched or no VERSION_21 found)")
+            skipped_count += 1
+            continue
+        
+        with open(gradle_file, 'w') as f:
+            f.write(content)
+        
+        print(f"✓ Patched {gradle_file} to use Java 17")
+        patched_count += 1
     
-    # Replace VERSION_21 with VERSION_17
-    original_content = content
-    content = re.sub(r'JavaVersion\.VERSION_21', 'JavaVersion.VERSION_17', content)
-    
-    if content == original_content:
-        print(f"✓ No Java 21 references found in {CAPACITOR_BUILD_GRADLE_PATH} (already compatible)")
-        return
-    
-    with open(CAPACITOR_BUILD_GRADLE_PATH, 'w') as f:
-        f.write(content)
-    
-    print(f"✓ Patched {CAPACITOR_BUILD_GRADLE_PATH} to use Java 17")
+    if patched_count > 0:
+        print(f"\nJava version patching: {patched_count} file(s) patched, {skipped_count} file(s) skipped")
+    else:
+        print(f"✓ All Capacitor files already compatible with Java 17")
 
 if __name__ == "__main__":
     # First patch Java version if needed
