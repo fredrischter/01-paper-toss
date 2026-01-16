@@ -5,6 +5,7 @@ npm-debug.log*
 # Testing
 coverage/
 .nyc_output/
+tests/screenshots/
 
 # Temporary files
 *.tmp

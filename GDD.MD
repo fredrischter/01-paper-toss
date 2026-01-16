@@ -66,8 +66,8 @@ All images are PNG format with transparency where applicable.
 
 ### 2. Game Screen (Main Gameplay - 50 seconds)
 - **Layout**:
-  - Left side: Hand position (x: 300, y: 540)
-  - Right side: Trash bin (x: 1500, y: 800)
+  - Middle bottom/right: Hand position (x: 1400, y: 900)
+  - Top left: Trash bin (x: 300, y: 250)
   - Top center: Fan rotating (x: 960, y: 200)
   - Top right: Score display (x: 1700, y: 50)
   - Top left: Timer (x: 100, y: 50)
@@ -75,17 +75,16 @@ All images are PNG format with transparency where applicable.
   - Bottom center: Power meter (x: 960, y: 900)
 
 - **Controls**: 
-  - **ONE BUTTON**: Throw button (hold and release)
-  - Press and hold button to charge throw power
-  - Hand animates back-and-forth continuously (wind-up motion)
-  - Power meter fills while button is held
-  - Release button to throw at current power level
+  - **ONE BUTTON**: Throw button (single click)
+  - Power oscillates automatically using sinusoidal wave
+  - Power meter shows current power level (0-100%)
+  - Single button press throws at current power level
   
 - **Mechanics**:
   1. Hand continuously animates in wind-up motion (even when not throwing)
-  2. Player holds throw button to charge power (max 2 seconds)
-  3. Power meter shows current throw strength (0-100%)
-  4. Release button triggers throw with charged power
+  2. Power oscillates automatically between 0-100% using sine wave (1.5 second cycle)
+  3. Power meter visually displays oscillating power level
+  4. Single button click triggers throw at current power level
   5. Wind from fan affects ball mid-flight (random direction every 3 seconds)
   6. Score +1 if ball lands in bin
   7. Hand returns to wind-up animation, ready for next throw
@@ -112,10 +111,12 @@ All images are PNG format with transparency where applicable.
 ```
 Gravity: 980 pixels/second²
 Initial Velocity: Based on power meter (0-100% = 400-1200 px/s)
+Power Oscillation: Sinusoidal wave (50 + 50 * Math.sin(time * frequency))
+Power Frequency: 2π / 1500 ms (1.5 second cycle)
 Wind Force: Random between -200 to +200 px/s horizontal
 Air Resistance: 0.98 multiplier per frame
 Ball Mass: 10 (for physics calculations)
-Throw Angle: Fixed at 45 degrees upward
+Throw Angle: -135 degrees (up and left from bottom-right to top-left)
 ```
 
 ### Manager Animation System
@@ -172,7 +173,7 @@ Throw Trigger:
 
 ### Visual Feedback
 - Hand continuously animates in throwing motion
-- Power meter fills during button hold (vertical bar, green to red gradient)
+- Power meter displays automatic sinusoidal oscillation (vertical bar, green to red gradient)
 - Wind indicator arrow shows current wind direction
 - Ball trail effect during flight
 - Bounce effect on bin rim (if hit)
@@ -197,8 +198,7 @@ Throw Trigger:
 
 ### Touch/Click Zones
 - **Throw Button**: Circular touch area, bottom right
-- Hold = charge power
-- Release = throw at current power level
+- Single click = throw at current oscillating power level
 
 ## Placeholder Image Specifications
 
@@ -322,9 +322,9 @@ Throw Trigger:
 ### Key Features for Demo
 1. ✅ Cinematic story-driven intro with large manager character
 2. ✅ Multi-frame manager animation (7 frames for speaking, gesturing, emphasis)
-3. ✅ ONE BUTTON control (hold and release)
+3. ✅ ONE BUTTON control (single click)
 4. ✅ Continuous hand animation (always in motion)
-5. ✅ Power-based throwing (no drag controls)
+5. ✅ Automatic power oscillation (sinusoidal wave)
 6. ✅ Clear visual feedback (power meter, animations)
 7. ✅ Quick restart loop for replayability
 
@@ -342,8 +342,8 @@ INTRO (7 seconds - Detailed Manager Animation):
 
 GAMEPLAY LOOP (48 seconds):
   - Hand continuously animates (1.5s cycle)
-  - Player holds button to charge power
-  - Release triggers throw
+  - Power oscillates automatically (sine wave, 1.5s cycle)
+  - Player clicks button to throw at current power
   - Ball flies with physics + wind
   - Score updates if successful
   - Repeat until timer ends
