@@ -63,8 +63,8 @@ class IntroScene extends Phaser.Scene {
     }
 
     create() {
-        // Add office background - randomly select from scenario backgrounds
-        const randomScenario = Phaser.Math.Between(1, 7);
+        // Add office background - randomly select from office scenario backgrounds (1-5)
+        const randomScenario = Phaser.Math.Between(1, 5);
         this.background = this.add.image(960, 540, `scenario-${randomScenario}`);
         // Scale to fit the game dimensions
         this.background.setDisplaySize(1920, 1080);
@@ -204,8 +204,8 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
-        // Add background - randomly select from scenario backgrounds
-        const randomScenario = Phaser.Math.Between(1, 7);
+        // Add background - randomly select from office scenario backgrounds (1-5)
+        const randomScenario = Phaser.Math.Between(1, 5);
         this.background = this.add.image(960, 540, `scenario-${randomScenario}`);
         this.background.setDisplaySize(1920, 1080);
         
