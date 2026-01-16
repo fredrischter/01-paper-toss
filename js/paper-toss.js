@@ -12,19 +12,49 @@ class IntroScene extends Phaser.Scene {
     preload() {
         // Load all assets
         this.load.image('background', 'assets/images/background.png');
-        this.load.image('trash_bin', 'assets/images/trash_bin.png');
-        this.load.image('paper_ball', 'assets/images/paper_ball.png');
+        
+        // Load scenario backgrounds (7 variations)
+        for (let i = 1; i <= 7; i++) {
+            this.load.image(`scenario-${i}`, `assets/images/scenario-${i}.png`);
+        }
+        
+        // Load trash bin variations from spritesheet
+        this.load.image('trash_bin', 'assets/images/trash_bin_open.png');
+        this.load.image('trash_bin_with_lid', 'assets/images/trash_bin_with_lid.png');
+        this.load.image('trash_bin_tilted', 'assets/images/trash_bin_tilted.png');
+        
+        // Load paper ball variations
+        this.load.image('paper_ball', 'assets/images/paper-ball-1.png');
+        this.load.image('paper_ball_2', 'assets/images/paper-ball-2.png');
+        this.load.image('paper_ball_3', 'assets/images/paper-ball-3.png');
+        this.load.image('paper_ball_4', 'assets/images/paper-ball-4.png');
+        this.load.image('paper_ball_crumpled_1', 'assets/images/paper_ball_crumpled_1.png');
+        this.load.image('paper_ball_crumpled_2', 'assets/images/paper_ball_crumpled_2.png');
+        this.load.image('paper_ball_crumpled_3', 'assets/images/paper_ball_crumpled_3.png');
+        
         this.load.image('hand_idle', 'assets/images/hand_idle.png');
         this.load.image('hand_back', 'assets/images/hand_back.png');
         this.load.image('hand_forward', 'assets/images/hand_forward.png');
         
-        // Manager sprites (7 frames)
+        // Manager sprites (7 frames + new high-res versions)
         for (let i = 1; i <= 7; i++) {
             this.load.image(`manager_large_0${i}`, `assets/images/manager_large_0${i}.png`);
         }
+        this.load.image('manager-1', 'assets/images/manager-1.png');
+        this.load.image('manager-2', 'assets/images/manager-2.png');
         
         this.load.image('speech_bubble', 'assets/images/speech_bubble.png');
+        this.load.image('dialog_balloon', 'assets/images/dialog-baloon.png');
+        
+        // Load fan assets
         this.load.image('fan', 'assets/images/fan.png');
+        this.load.image('desk_fan', 'assets/images/desk_fan.png');
+        
+        // Load fan blade animation frames
+        for (let i = 1; i <= 5; i++) {
+            this.load.image(`fan_blade_${i}`, `assets/images/fan_blade_${i}.png`);
+        }
+        
         this.load.image('wind_indicator', 'assets/images/wind_indicator.png');
         this.load.image('power_meter', 'assets/images/power_meter.png');
         this.load.image('score_panel', 'assets/images/score_panel.png');
@@ -33,8 +63,11 @@ class IntroScene extends Phaser.Scene {
     }
 
     create() {
-        // Add office background
-        this.add.image(960, 540, 'background');
+        // Add office background - randomly select from scenario backgrounds
+        const randomScenario = Phaser.Math.Between(1, 7);
+        this.background = this.add.image(960, 540, `scenario-${randomScenario}`);
+        // Scale to fit the game dimensions
+        this.background.setDisplaySize(1920, 1080);
         
         // Create manager sprite (large, 1400x1000, positioned at 260, 40)
         this.manager = this.add.image(-1400, 540, 'manager_large_01');
@@ -160,20 +193,33 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
-        // Add background
-        this.add.image(960, 540, 'background');
+        // Add background - randomly select from scenario backgrounds
+        const randomScenario = Phaser.Math.Between(1, 7);
+        this.background = this.add.image(960, 540, `scenario-${randomScenario}`);
+        this.background.setDisplaySize(1920, 1080);
         
-        // Add trash bin (top left: x=300, y=250)
+        // Add trash bin (top left: x=300, y=250) - use new trash bin
         this.trashBin = this.add.image(300, 250, 'trash_bin');
+        this.trashBin.setScale(0.5); // Scale down from 384px to ~192px
         this.physics.add.existing(this.trashBin, true); // Static body
         
-        // Add fan (top center: x=960, y=200) - rotating
-        this.fan = this.add.image(960, 200, 'fan');
-        this.tweens.add({
-            targets: this.fan,
-            angle: 360,
-            duration: 2000,
-            repeat: -1
+        // Add fan (top center: x=960, y=200) - use new desk fan with blade animation
+        this.deskFan = this.add.image(960, 200, 'desk_fan');
+        this.deskFan.setScale(0.6);
+        
+        // Add rotating fan blades on top of desk fan
+        this.fanBlades = this.add.image(960, 200, 'fan_blade_1');
+        this.fanBlades.setScale(0.6);
+        
+        // Animate fan blades cycling through frames
+        this.fanBladeFrame = 1;
+        this.time.addEvent({
+            delay: 100,
+            callback: () => {
+                this.fanBladeFrame = (this.fanBladeFrame % 5) + 1;
+                this.fanBlades.setTexture(`fan_blade_${this.fanBladeFrame}`);
+            },
+            loop: true
         });
         
         // Add hand (middle bottom/right: x=1400, y=900)
@@ -268,8 +314,16 @@ class GameScene extends Phaser.Scene {
     }
 
     throwPaper() {
+        // Randomly select a paper ball variation
+        const paperBallTypes = [
+            'paper_ball', 'paper_ball_2', 'paper_ball_3', 'paper_ball_4',
+            'paper_ball_crumpled_1', 'paper_ball_crumpled_2', 'paper_ball_crumpled_3'
+        ];
+        const randomPaperBall = Phaser.Utils.Array.GetRandom(paperBallTypes);
+        
         // Create paper ball at new hand position
-        const paper = this.physics.add.sprite(1400, 900, 'paper_ball');
+        const paper = this.physics.add.sprite(1400, 900, randomPaperBall);
+        paper.setScale(0.15); // Scale down the large 1024x1024 paper balls
         paper.setMass(10);
         
         // Calculate initial velocity based on current oscillating power (0-100% = 400-1200 px/s)
