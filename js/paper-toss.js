@@ -152,18 +152,19 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
         this.timeRemaining = 60;
         this.windForce = 0;
-        this.isPowerCharging = false;
         this.currentPower = 0;
         this.paperBalls = [];
         this.handAnimFrame = 0;
+        this.powerOscillationTime = 0;
+        this.powerFrequency = (2 * Math.PI) / 1500; // 1.5 second full cycle
     }
 
     create() {
         // Add background
         this.add.image(960, 540, 'background');
         
-        // Add trash bin (right side: x=1500, y=800)
-        this.trashBin = this.add.image(1500, 800, 'trash_bin');
+        // Add trash bin (top left: x=300, y=250)
+        this.trashBin = this.add.image(300, 250, 'trash_bin');
         this.physics.add.existing(this.trashBin, true); // Static body
         
         // Add fan (top center: x=960, y=200) - rotating
@@ -175,8 +176,8 @@ class GameScene extends Phaser.Scene {
             repeat: -1
         });
         
-        // Add hand (left side: x=300, y=540)
-        this.hand = this.add.image(300, 540, 'hand_idle');
+        // Add hand (middle bottom/right: x=1400, y=900)
+        this.hand = this.add.image(1400, 900, 'hand_idle');
         
         // Start hand wind-up animation loop
         this.startHandAnimation();
@@ -210,8 +211,7 @@ class GameScene extends Phaser.Scene {
         
         // Throw button (bottom right: x=1650, y=900)
         this.throwButton = this.add.image(1650, 900, 'button_throw').setInteractive();
-        this.throwButton.on('pointerdown', () => this.startCharging());
-        this.throwButton.on('pointerup', () => this.throwPaper());
+        this.throwButton.on('pointerdown', () => this.throwPaper());
         
         // Initialize physics
         this.physics.world.gravity.y = 980; // Gravity: 980 pixels/second²
@@ -267,35 +267,22 @@ class GameScene extends Phaser.Scene {
         }
     }
 
-    startCharging() {
-        this.isPowerCharging = true;
-        this.currentPower = 0;
-    }
-
     throwPaper() {
-        if (!this.isPowerCharging) return;
-        
-        this.isPowerCharging = false;
-        
-        // Create paper ball
-        const paper = this.physics.add.sprite(300, 540, 'paper_ball');
+        // Create paper ball at new hand position
+        const paper = this.physics.add.sprite(1400, 900, 'paper_ball');
         paper.setMass(10);
         
-        // Calculate initial velocity based on power (0-100% = 400-1200 px/s)
+        // Calculate initial velocity based on current oscillating power (0-100% = 400-1200 px/s)
         const velocity = 400 + (this.currentPower / 100) * 800;
         
-        // Fixed 45-degree throw angle
-        const angle = -45 * (Math.PI / 180);
+        // Calculate throw angle from (1400, 900) to (300, 250) - up and left
+        const angle = -135 * (Math.PI / 180);
         paper.setVelocity(
             Math.cos(angle) * velocity,
             Math.sin(angle) * velocity
         );
         
         this.paperBalls.push(paper);
-        
-        // Reset power meter
-        this.currentPower = 0;
-        this.powerMeterFill.height = 0;
         
         // Check collision with trash bin
         this.physics.add.overlap(paper, this.trashBin, () => {
@@ -346,20 +333,24 @@ class GameScene extends Phaser.Scene {
         this.scene.start('EndScene', { won: won, score: this.score });
     }
 
-    update() {
-        // Update power meter while charging
-        if (this.isPowerCharging) {
-            this.currentPower = Math.min(100, this.currentPower + 1.67); // 2 seconds to full
-            this.powerMeterFill.height = (this.currentPower / 100) * 196;
-            
-            // Update color (green -> yellow -> red)
-            if (this.currentPower < 50) {
-                this.powerMeterFill.setFillStyle(0x00ff00);
-            } else if (this.currentPower < 80) {
-                this.powerMeterFill.setFillStyle(0xffff00);
-            } else {
-                this.powerMeterFill.setFillStyle(0xff0000);
-            }
+    update(time, delta) {
+        // Update power oscillation time
+        this.powerOscillationTime += delta;
+        
+        // Calculate current power using sinusoidal wave (0-100%)
+        // power = 50 + 50 * Math.sin(time * frequency)
+        this.currentPower = 50 + 50 * Math.sin(this.powerOscillationTime * this.powerFrequency);
+        
+        // Update power meter to visualize sine wave oscillation
+        this.powerMeterFill.height = (this.currentPower / 100) * 196;
+        
+        // Update color based on power (green -> yellow -> red)
+        if (this.currentPower < 50) {
+            this.powerMeterFill.setFillStyle(0x00ff00);
+        } else if (this.currentPower < 80) {
+            this.powerMeterFill.setFillStyle(0xffff00);
+        } else {
+            this.powerMeterFill.setFillStyle(0xff0000);
         }
         
         // Apply wind force to paper balls

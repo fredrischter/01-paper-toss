@@ -10,6 +10,9 @@ on:
 jobs:
   test-and-screenshot:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     
     steps:
       - name: Checkout code
@@ -22,7 +25,7 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: npm ci
+        run: PUPPETEER_SKIP_DOWNLOAD=true npm ci
       
       - name: Run tests
         run: npm test -- --coverage
@@ -44,7 +47,7 @@ jobs:
               args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
             const context = await browser.newContext({
-              viewport: { width: 800, height: 600 }
+              viewport: { width: 1920, height: 1080 }
             });
             const page = await context.newPage();
 
@@ -64,33 +67,33 @@ jobs:
               // Wait for game to load (wait for canvas)
               await page.waitForSelector('canvas', { timeout: 10000 });
               
-              // Wait a bit for game to initialize
-              await page.waitForTimeout(3000);
-
-              // Take initial screenshot
+              // Take intro scene screenshot
+              await page.waitForTimeout(2000);
               await page.screenshot({
-                path: path.join(screenshotDir, 'game-start.png'),
+                path: path.join(screenshotDir, 'game-intro.png'),
                 fullPage: false
               });
+              console.log('✓ Intro screenshot captured');
 
-              console.log('✓ Initial screenshot captured');
-
-              // Simulate some gameplay
-              await page.keyboard.press('ArrowRight');
-              await page.waitForTimeout(1000);
+              // Wait for intro to complete and gameplay to start (7 seconds intro + 1 second buffer)
+              await page.waitForTimeout(8000);
+              
+              // Take gameplay screenshot showing new layout
               await page.screenshot({
-                path: path.join(screenshotDir, 'game-action-1.png')
+                path: path.join(screenshotDir, 'game-gameplay-layout.png'),
+                fullPage: false
               });
-              console.log('✓ Action screenshot 1 captured');
+              console.log('✓ Gameplay layout screenshot captured');
 
-              await page.keyboard.press('Space');
-              await page.waitForTimeout(1000);
+              // Simulate a throw action by clicking the throw button area
+              await page.mouse.click(1650, 900);
+              await page.waitForTimeout(1500);
               await page.screenshot({
-                path: path.join(screenshotDir, 'game-action-2.png')
+                path: path.join(screenshotDir, 'game-throw-action.png')
               });
-              console.log('✓ Action screenshot 2 captured');
+              console.log('✓ Throw action screenshot captured');
 
-              // Mobile view screenshot
+              // Mobile view screenshot (during gameplay)
               await page.setViewportSize({ width: 375, height: 667 });
               await page.waitForTimeout(1000);
               await page.screenshot({
@@ -108,8 +111,8 @@ jobs:
           })();
           EOF
       
-      - name: Install Playwright for screenshot generation
-        run: npm install --save-dev playwright
+      - name: Verify Playwright installation
+        run: npx playwright --version
       
       - name: Generate game screenshots
         run: node screenshot-game.js
