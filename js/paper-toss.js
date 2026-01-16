@@ -180,6 +180,17 @@ class IntroScene extends Phaser.Scene {
 // GAME SCENE - Main Gameplay (50 seconds)
 // ============================================================================
 class GameScene extends Phaser.Scene {
+    // Visual scaling constants
+    static PAPER_BALL_SCALE = 0.15; // Scale down 1024x1024 paper balls to appropriate size
+    static TRASH_BIN_SCALE = 0.5;   // Scale trash bin to fit game layout
+    static DESK_FAN_SCALE = 0.6;    // Scale desk fan and blades
+    
+    // Paper ball variations for random selection
+    static PAPER_BALL_TYPES = [
+        'paper_ball', 'paper_ball_2', 'paper_ball_3', 'paper_ball_4',
+        'paper_ball_crumpled_1', 'paper_ball_crumpled_2', 'paper_ball_crumpled_3'
+    ];
+    
     constructor() {
         super({ key: 'GameScene' });
         this.score = 0;
@@ -190,11 +201,6 @@ class GameScene extends Phaser.Scene {
         this.handAnimFrame = 0;
         this.powerOscillationTime = 0;
         this.powerFrequency = (2 * Math.PI) / 1500; // 1.5 second full cycle
-        
-        // Visual constants
-        this.PAPER_BALL_SCALE = 0.15; // Scale down 1024x1024 paper balls to appropriate size
-        this.TRASH_BIN_SCALE = 0.5;   // Scale trash bin to fit game layout
-        this.DESK_FAN_SCALE = 0.6;    // Scale desk fan and blades
     }
 
     create() {
@@ -205,16 +211,16 @@ class GameScene extends Phaser.Scene {
         
         // Add trash bin (top left: x=300, y=250) - use new trash bin
         this.trashBin = this.add.image(300, 250, 'trash_bin');
-        this.trashBin.setScale(this.TRASH_BIN_SCALE);
+        this.trashBin.setScale(GameScene.TRASH_BIN_SCALE);
         this.physics.add.existing(this.trashBin, true); // Static body
         
         // Add fan (top center: x=960, y=200) - use new desk fan with blade animation
         this.deskFan = this.add.image(960, 200, 'desk_fan');
-        this.deskFan.setScale(this.DESK_FAN_SCALE);
+        this.deskFan.setScale(GameScene.DESK_FAN_SCALE);
         
         // Add rotating fan blades on top of desk fan
         this.fanBlades = this.add.image(960, 200, 'fan_blade_1');
-        this.fanBlades.setScale(this.DESK_FAN_SCALE);
+        this.fanBlades.setScale(GameScene.DESK_FAN_SCALE);
         
         // Animate fan blades cycling through frames
         this.fanBladeFrame = 1;
@@ -319,16 +325,12 @@ class GameScene extends Phaser.Scene {
     }
 
     throwPaper() {
-        // Randomly select a paper ball variation
-        const paperBallTypes = [
-            'paper_ball', 'paper_ball_2', 'paper_ball_3', 'paper_ball_4',
-            'paper_ball_crumpled_1', 'paper_ball_crumpled_2', 'paper_ball_crumpled_3'
-        ];
-        const randomPaperBall = Phaser.Utils.Array.GetRandom(paperBallTypes);
+        // Randomly select a paper ball variation from static array
+        const randomPaperBall = Phaser.Utils.Array.GetRandom(GameScene.PAPER_BALL_TYPES);
         
         // Create paper ball at new hand position
         const paper = this.physics.add.sprite(1400, 900, randomPaperBall);
-        paper.setScale(this.PAPER_BALL_SCALE);
+        paper.setScale(GameScene.PAPER_BALL_SCALE);
         paper.setMass(10);
         
         // Calculate initial velocity based on current oscillating power (0-100% = 400-1200 px/s)
