@@ -1,0 +1,53 @@
+PAPER TOSS! — FINAL COLOR PALETTE (LOCKED)
+
+ENVIRONMENT / BACKGROUND
+- Office Blue        #2E5FA7   (walls, main background, sky gradient)
+- Desk Brown         #8B5A2B   (wooden desks, shelves)
+- Neutral Gray       #8E949B   (floors, metal structures, shadows)
+- Highlight Yellow   #F4C430   (alerts, emphasis, interactive cues)
+- Neutral White      #F2F2EF   (paper base, UI panels, light accents)
+
+TRASH CAN (SINGLE CANONICAL TYPE)
+- Oily Black Metal   #1E2329   (main bin body)
+- Worn Steel Edge    #5F6A73   (rim, inner edge)
+- Grease Highlight   #9AA3AA   (specular highlights)
+- Rust Accent        #9B4A2F   (age, dents, corruption details)
+- Inner Shadow       #0F1216   (depth inside open bin)
+
+PAPER (GAMEPLAY)
+- Paper White        #ECEFF1   (clean A4 sheets / paper balls)
+- Fold Shadow        #C7CDD3   (creases, volume)
+- Dirt Stain         #B8A58A   (rare cosmetic variation only)
+
+FAN / WIND OBJECTS
+- Plastic Blue       #3A7BD5   (fan housing)
+- Blade Light        #CFE3F5   (fan blades)
+- Motor Gray         #6F7A85   (base, joints)
+- LED Green          #4CAF50   (power indicator)
+
+MANAGER CHARACTER (CORRUPT / ANTAGONIST)
+- Sick Skin Peach    #D2B48C   (base skin tone)
+- Bruise Shadow      #9E7B6A   (eye bags, stress lines)
+- Greasy Hair Brown  #6B4A2E   (hair)
+- Suit Blue          #1F3556   (jacket)
+- Shirt White        #EDEDED   (shirt)
+- Tie Red            #7A1E1E   (authority, aggression)
+- Teeth Yellow       #E6D9A3   (disgust detail)
+- Smoke Gray         #B0B5BB   (anger / stress smoke)
+
+UI & FEEDBACK
+- Combo Flame Red    #FF4D4D   (combo, streaks)
+- Perfect Gold       #FFD84D   (perfect shots, rewards)
+- Success Green      #5ED36C   (positive feedback)
+- Fail Shake Gray    #6E6E6E   (miss feedback)
+- Meter Green        #7CFF3A   (accuracy / power meters)
+
+SCORING / EFFECTS
+- Glow White         #FFFFFF   (hit confirmation)
+- Multiplier Orange  #FF9F1C   (bonus indicators)
+- Wind Indicator Cyan#4DD0E1   (wind direction UI)
+
+NOTES
+- No color variants for trash cans or paper during gameplay.
+- Variations come from lighting, wear, and effects only.
+- Palette designed for high contrast on mobile screens.
