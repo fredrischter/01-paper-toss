@@ -2,6 +2,38 @@
 // Game Flow: Intro (7s) -> Gameplay (50s) -> End Screen (5s) -> Loop
 
 // ============================================================================
+// GAME SERVER CLIENT - Initialize and manage analytics/A-B testing
+// ============================================================================
+let gameServerClient;
+let abTestConfig = {};
+
+// Initialize the game server client
+function initializeGameServerClient() {
+    try {
+        // Get or create user UUID from localStorage for persistent tracking
+        let userUuid = localStorage.getItem('paperTossUserUuid');
+        
+        gameServerClient = new GameServerClient({
+            baseUrl: 'https://game-server-97828933506.europe-west1.run.app',
+            gameKey: 'paper-toss',
+            userUuid: userUuid
+        });
+        
+        // Save user UUID for future sessions
+        if (!userUuid) {
+            localStorage.setItem('paperTossUserUuid', gameServerClient.getUserUuid());
+        }
+        
+        console.log('Game Server Client initialized:', gameServerClient.getUserUuid());
+    } catch (error) {
+        console.error('Failed to initialize Game Server Client:', error);
+    }
+}
+
+// Initialize on page load
+initializeGameServerClient();
+
+// ============================================================================
 // INTRO SCENE - Manager Animation Sequence (7 seconds)
 // ============================================================================
 class IntroScene extends Phaser.Scene {
@@ -63,6 +95,21 @@ class IntroScene extends Phaser.Scene {
     }
 
     create() {
+        // Start game session and get A/B test config
+        if (gameServerClient) {
+            gameServerClient.startSession().then(() => {
+                console.log('Game session started:', gameServerClient.getSessionUuid());
+                
+                // Get A/B test configuration
+                return gameServerClient.getABTestConfig();
+            }).then(config => {
+                abTestConfig = config;
+                console.log('A/B test config:', abTestConfig);
+            }).catch(error => {
+                console.error('Failed to start session or get A/B config:', error);
+            });
+        }
+        
         // Add office background - randomly select from office scenario backgrounds (1-5)
         const randomScenario = Phaser.Math.Between(1, 5);
         this.background = this.add.image(960, 540, `scenario-${randomScenario}`);
@@ -356,6 +403,14 @@ class GameScene extends Phaser.Scene {
         this.score++;
         this.scoreText.setText(`Score: ${this.score}/5`);
         
+        // Track successful shot event
+        if (gameServerClient) {
+            gameServerClient.trackEvent('paper_in_bin', { 
+                score: this.score, 
+                time_remaining: this.timeRemaining 
+            }).catch(error => console.error('Failed to track paper_in_bin event:', error));
+        }
+        
         // Show success effect
         const effect = this.add.image(paper.x, paper.y, 'success_effect');
         this.tweens.add({
@@ -442,6 +497,24 @@ class EndScene extends Phaser.Scene {
     create(data) {
         const won = data.won;
         const score = data.score;
+        
+        // Track win/lose event with game server
+        if (gameServerClient) {
+            if (won) {
+                gameServerClient.trackWin({ score: score, max_score: 5 })
+                    .then(() => console.log('Win event tracked'))
+                    .catch(error => console.error('Failed to track win event:', error));
+            } else {
+                gameServerClient.trackLose({ score: score, max_score: 5 })
+                    .then(() => console.log('Lose event tracked'))
+                    .catch(error => console.error('Failed to track lose event:', error));
+            }
+            
+            // End the session
+            gameServerClient.endSession()
+                .then(() => console.log('Game session ended'))
+                .catch(error => console.error('Failed to end session:', error));
+        }
         
         // Add background
         this.add.rectangle(960, 540, 1920, 1080, 0x000000, 0.7);
