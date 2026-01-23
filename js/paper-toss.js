@@ -10,6 +10,12 @@ let abTestConfig = {};
 // Initialize the game server client
 function initializeGameServerClient() {
     try {
+        // Check if GameServerClient is available
+        if (typeof GameServerClient === 'undefined') {
+            console.warn('GameServerClient not loaded yet');
+            return;
+        }
+        
         // Get or create user UUID from localStorage for persistent tracking
         let userUuid = localStorage.getItem('paperTossUserUuid');
         
