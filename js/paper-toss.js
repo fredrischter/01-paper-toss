@@ -49,10 +49,9 @@ class IntroScene extends Phaser.Scene {
 
     preload() {
         // Load only assets needed for intro scene
-        // Load scenario backgrounds (only 1-5 needed for intro and game)
-        for (let i = 1; i <= 5; i++) {
-            this.load.image(`scenario-${i}`, `assets/images/scenario-${i}.png`);
-        }
+        // Randomly select and load only one scenario background
+        this.selectedScenario = Phaser.Math.Between(1, 5);
+        this.load.image(`scenario-${this.selectedScenario}`, `assets/images/scenario-${this.selectedScenario}.png`);
         
         // Manager sprites (7 frames for intro animation)
         for (let i = 1; i <= 7; i++) {
@@ -78,9 +77,8 @@ class IntroScene extends Phaser.Scene {
             });
         }
         
-        // Add office background - randomly select from office scenario backgrounds (1-5)
-        const randomScenario = Phaser.Math.Between(1, 5);
-        this.background = this.add.image(960, 540, `scenario-${randomScenario}`);
+        // Add office background - use the pre-selected scenario
+        this.background = this.add.image(960, 540, `scenario-${this.selectedScenario}`);
         // Scale to fit the game dimensions
         this.background.setDisplaySize(1920, 1080);
         
@@ -220,6 +218,10 @@ class GameScene extends Phaser.Scene {
 
     preload() {
         // Load gameplay-specific assets
+        // Randomly select and load only one scenario background
+        this.selectedScenario = Phaser.Math.Between(1, 5);
+        this.load.image(`scenario-${this.selectedScenario}`, `assets/images/scenario-${this.selectedScenario}.png`);
+        
         // Trash bin variations
         this.load.image('trash_bin', 'assets/images/trash_bin_open.png');
         this.load.image('trash_bin_with_lid', 'assets/images/trash_bin_with_lid.png');
@@ -255,9 +257,8 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
-        // Add background - randomly select from office scenario backgrounds (1-5)
-        const randomScenario = Phaser.Math.Between(1, 5);
-        this.background = this.add.image(960, 540, `scenario-${randomScenario}`);
+        // Add background - use the pre-selected scenario
+        this.background = this.add.image(960, 540, `scenario-${this.selectedScenario}`);
         this.background.setDisplaySize(1920, 1080);
         
         // Add trash bin (top left: x=300, y=250) - use new trash bin
