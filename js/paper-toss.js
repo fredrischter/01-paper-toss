@@ -48,56 +48,18 @@ class IntroScene extends Phaser.Scene {
     }
 
     preload() {
-        // Load all assets
-        this.load.image('background', 'assets/images/background.png');
-        
-        // Load scenario backgrounds (7 variations)
-        for (let i = 1; i <= 7; i++) {
+        // Load only assets needed for intro scene
+        // Load scenario backgrounds (only 1-5 needed for intro and game)
+        for (let i = 1; i <= 5; i++) {
             this.load.image(`scenario-${i}`, `assets/images/scenario-${i}.png`);
         }
         
-        // Load trash bin variations from spritesheet
-        this.load.image('trash_bin', 'assets/images/trash_bin_open.png');
-        this.load.image('trash_bin_with_lid', 'assets/images/trash_bin_with_lid.png');
-        this.load.image('trash_bin_tilted', 'assets/images/trash_bin_tilted.png');
-        
-        // Load paper ball variations
-        this.load.image('paper_ball', 'assets/images/paper-ball-1.png');
-        this.load.image('paper_ball_2', 'assets/images/paper-ball-2.png');
-        this.load.image('paper_ball_3', 'assets/images/paper-ball-3.png');
-        this.load.image('paper_ball_4', 'assets/images/paper-ball-4.png');
-        this.load.image('paper_ball_crumpled_1', 'assets/images/paper_ball_crumpled_1.png');
-        this.load.image('paper_ball_crumpled_2', 'assets/images/paper_ball_crumpled_2.png');
-        this.load.image('paper_ball_crumpled_3', 'assets/images/paper_ball_crumpled_3.png');
-        
-        this.load.image('hand_idle', 'assets/images/hand_idle.png');
-        this.load.image('hand_back', 'assets/images/hand_back.png');
-        this.load.image('hand_forward', 'assets/images/hand_forward.png');
-        
-        // Manager sprites (7 frames + new high-res versions)
+        // Manager sprites (7 frames for intro animation)
         for (let i = 1; i <= 7; i++) {
             this.load.image(`manager_large_0${i}`, `assets/images/manager_large_0${i}.png`);
         }
-        this.load.image('manager-1', 'assets/images/manager-1.png');
-        this.load.image('manager-2', 'assets/images/manager-2.png');
         
         this.load.image('speech_bubble', 'assets/images/speech_bubble.png');
-        this.load.image('dialog_balloon', 'assets/images/dialog-baloon.png');
-        
-        // Load fan assets
-        this.load.image('fan', 'assets/images/fan.png');
-        this.load.image('desk_fan', 'assets/images/desk_fan.png');
-        
-        // Load fan blade animation frames
-        for (let i = 1; i <= 5; i++) {
-            this.load.image(`fan_blade_${i}`, `assets/images/fan_blade_${i}.png`);
-        }
-        
-        this.load.image('wind_indicator', 'assets/images/wind_indicator.png');
-        this.load.image('power_meter', 'assets/images/power_meter.png');
-        this.load.image('score_panel', 'assets/images/score_panel.png');
-        this.load.image('button_throw', 'assets/images/button_throw.png');
-        this.load.image('success_effect', 'assets/images/success_effect.png');
     }
 
     create() {
@@ -254,6 +216,42 @@ class GameScene extends Phaser.Scene {
         this.handAnimFrame = 0;
         this.powerOscillationTime = 0;
         this.powerFrequency = (2 * Math.PI) / 1500; // 1.5 second full cycle
+    }
+
+    preload() {
+        // Load gameplay-specific assets
+        // Trash bin variations
+        this.load.image('trash_bin', 'assets/images/trash_bin_open.png');
+        this.load.image('trash_bin_with_lid', 'assets/images/trash_bin_with_lid.png');
+        this.load.image('trash_bin_tilted', 'assets/images/trash_bin_tilted.png');
+        
+        // Paper ball variations
+        this.load.image('paper_ball', 'assets/images/paper-ball-1.png');
+        this.load.image('paper_ball_2', 'assets/images/paper-ball-2.png');
+        this.load.image('paper_ball_3', 'assets/images/paper-ball-3.png');
+        this.load.image('paper_ball_4', 'assets/images/paper-ball-4.png');
+        this.load.image('paper_ball_crumpled_1', 'assets/images/paper_ball_crumpled_1.png');
+        this.load.image('paper_ball_crumpled_2', 'assets/images/paper_ball_crumpled_2.png');
+        this.load.image('paper_ball_crumpled_3', 'assets/images/paper_ball_crumpled_3.png');
+        
+        // Hand animation frames
+        this.load.image('hand_idle', 'assets/images/hand_idle.png');
+        this.load.image('hand_back', 'assets/images/hand_back.png');
+        this.load.image('hand_forward', 'assets/images/hand_forward.png');
+        
+        // Fan assets
+        this.load.image('desk_fan', 'assets/images/desk_fan.png');
+        
+        // Load fan blade animation frames
+        for (let i = 1; i <= 5; i++) {
+            this.load.image(`fan_blade_${i}`, `assets/images/fan_blade_${i}.png`);
+        }
+        
+        // UI elements
+        this.load.image('wind_indicator', 'assets/images/wind_indicator.png');
+        this.load.image('score_panel', 'assets/images/score_panel.png');
+        this.load.image('button_throw', 'assets/images/button_throw.png');
+        this.load.image('success_effect', 'assets/images/success_effect.png');
     }
 
     create() {
