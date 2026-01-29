@@ -181,8 +181,8 @@ class IntroScene extends Phaser.Scene {
                 duration: 1500,
                 ease: 'Power2',
                 onComplete: () => {
-                    // Transition to gameplay
-                    this.scene.start('GameScene');
+                    // Transition to gameplay, passing the selected scenario to reuse it
+                    this.scene.start('GameScene', { selectedScenario: this.selectedScenario });
                 }
             });
         });
@@ -216,11 +216,17 @@ class GameScene extends Phaser.Scene {
         this.powerFrequency = (2 * Math.PI) / 1500; // 1.5 second full cycle
     }
 
+    init(data) {
+        // Get scenario from IntroScene, or default to a random one
+        this.selectedScenario = data.selectedScenario || Phaser.Math.Between(1, 5);
+    }
+
     preload() {
         // Load gameplay-specific assets
-        // Randomly select and load only one scenario background
-        this.selectedScenario = Phaser.Math.Between(1, 5);
-        this.load.image(`scenario-${this.selectedScenario}`, `assets/images/scenario-${this.selectedScenario}.png`);
+        // Load scenario background only if not already loaded
+        if (!this.textures.exists(`scenario-${this.selectedScenario}`)) {
+            this.load.image(`scenario-${this.selectedScenario}`, `assets/images/scenario-${this.selectedScenario}.png`);
+        }
         
         // Trash bin variations
         this.load.image('trash_bin', 'assets/images/trash_bin_open.png');
