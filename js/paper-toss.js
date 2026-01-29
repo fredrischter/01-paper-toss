@@ -48,56 +48,17 @@ class IntroScene extends Phaser.Scene {
     }
 
     preload() {
-        // Load all assets
-        this.load.image('background', 'assets/images/background.png');
+        // Load only assets needed for intro scene
+        // Randomly select and load only one scenario background
+        this.selectedScenario = Phaser.Math.Between(1, 5);
+        this.load.image(`scenario-${this.selectedScenario}`, `assets/images/scenario-${this.selectedScenario}.png`);
         
-        // Load scenario backgrounds (7 variations)
-        for (let i = 1; i <= 7; i++) {
-            this.load.image(`scenario-${i}`, `assets/images/scenario-${i}.png`);
-        }
-        
-        // Load trash bin variations from spritesheet
-        this.load.image('trash_bin', 'assets/images/trash_bin_open.png');
-        this.load.image('trash_bin_with_lid', 'assets/images/trash_bin_with_lid.png');
-        this.load.image('trash_bin_tilted', 'assets/images/trash_bin_tilted.png');
-        
-        // Load paper ball variations
-        this.load.image('paper_ball', 'assets/images/paper-ball-1.png');
-        this.load.image('paper_ball_2', 'assets/images/paper-ball-2.png');
-        this.load.image('paper_ball_3', 'assets/images/paper-ball-3.png');
-        this.load.image('paper_ball_4', 'assets/images/paper-ball-4.png');
-        this.load.image('paper_ball_crumpled_1', 'assets/images/paper_ball_crumpled_1.png');
-        this.load.image('paper_ball_crumpled_2', 'assets/images/paper_ball_crumpled_2.png');
-        this.load.image('paper_ball_crumpled_3', 'assets/images/paper_ball_crumpled_3.png');
-        
-        this.load.image('hand_idle', 'assets/images/hand_idle.png');
-        this.load.image('hand_back', 'assets/images/hand_back.png');
-        this.load.image('hand_forward', 'assets/images/hand_forward.png');
-        
-        // Manager sprites (7 frames + new high-res versions)
+        // Manager sprites (7 frames for intro animation)
         for (let i = 1; i <= 7; i++) {
             this.load.image(`manager_large_0${i}`, `assets/images/manager_large_0${i}.png`);
         }
-        this.load.image('manager-1', 'assets/images/manager-1.png');
-        this.load.image('manager-2', 'assets/images/manager-2.png');
         
         this.load.image('speech_bubble', 'assets/images/speech_bubble.png');
-        this.load.image('dialog_balloon', 'assets/images/dialog-baloon.png');
-        
-        // Load fan assets
-        this.load.image('fan', 'assets/images/fan.png');
-        this.load.image('desk_fan', 'assets/images/desk_fan.png');
-        
-        // Load fan blade animation frames
-        for (let i = 1; i <= 5; i++) {
-            this.load.image(`fan_blade_${i}`, `assets/images/fan_blade_${i}.png`);
-        }
-        
-        this.load.image('wind_indicator', 'assets/images/wind_indicator.png');
-        this.load.image('power_meter', 'assets/images/power_meter.png');
-        this.load.image('score_panel', 'assets/images/score_panel.png');
-        this.load.image('button_throw', 'assets/images/button_throw.png');
-        this.load.image('success_effect', 'assets/images/success_effect.png');
     }
 
     create() {
@@ -116,9 +77,8 @@ class IntroScene extends Phaser.Scene {
             });
         }
         
-        // Add office background - randomly select from office scenario backgrounds (1-5)
-        const randomScenario = Phaser.Math.Between(1, 5);
-        this.background = this.add.image(960, 540, `scenario-${randomScenario}`);
+        // Add office background - use the pre-selected scenario
+        this.background = this.add.image(960, 540, `scenario-${this.selectedScenario}`);
         // Scale to fit the game dimensions
         this.background.setDisplaySize(1920, 1080);
         
@@ -221,8 +181,8 @@ class IntroScene extends Phaser.Scene {
                 duration: 1500,
                 ease: 'Power2',
                 onComplete: () => {
-                    // Transition to gameplay
-                    this.scene.start('GameScene');
+                    // Transition to gameplay, passing the selected scenario to reuse it
+                    this.scene.start('GameScene', { selectedScenario: this.selectedScenario });
                 }
             });
         });
@@ -256,10 +216,55 @@ class GameScene extends Phaser.Scene {
         this.powerFrequency = (2 * Math.PI) / 1500; // 1.5 second full cycle
     }
 
+    init(data) {
+        // Get scenario from IntroScene, or default to a random one
+        this.selectedScenario = data.selectedScenario || Phaser.Math.Between(1, 5);
+    }
+
+    preload() {
+        // Load gameplay-specific assets
+        // Load scenario background only if not already loaded
+        if (!this.textures.exists(`scenario-${this.selectedScenario}`)) {
+            this.load.image(`scenario-${this.selectedScenario}`, `assets/images/scenario-${this.selectedScenario}.png`);
+        }
+        
+        // Trash bin variations
+        this.load.image('trash_bin', 'assets/images/trash_bin_open.png');
+        this.load.image('trash_bin_with_lid', 'assets/images/trash_bin_with_lid.png');
+        this.load.image('trash_bin_tilted', 'assets/images/trash_bin_tilted.png');
+        
+        // Paper ball variations
+        this.load.image('paper_ball', 'assets/images/paper-ball-1.png');
+        this.load.image('paper_ball_2', 'assets/images/paper-ball-2.png');
+        this.load.image('paper_ball_3', 'assets/images/paper-ball-3.png');
+        this.load.image('paper_ball_4', 'assets/images/paper-ball-4.png');
+        this.load.image('paper_ball_crumpled_1', 'assets/images/paper_ball_crumpled_1.png');
+        this.load.image('paper_ball_crumpled_2', 'assets/images/paper_ball_crumpled_2.png');
+        this.load.image('paper_ball_crumpled_3', 'assets/images/paper_ball_crumpled_3.png');
+        
+        // Hand animation frames
+        this.load.image('hand_idle', 'assets/images/hand_idle.png');
+        this.load.image('hand_back', 'assets/images/hand_back.png');
+        this.load.image('hand_forward', 'assets/images/hand_forward.png');
+        
+        // Fan assets
+        this.load.image('desk_fan', 'assets/images/desk_fan.png');
+        
+        // Load fan blade animation frames
+        for (let i = 1; i <= 5; i++) {
+            this.load.image(`fan_blade_${i}`, `assets/images/fan_blade_${i}.png`);
+        }
+        
+        // UI elements
+        this.load.image('wind_indicator', 'assets/images/wind_indicator.png');
+        this.load.image('score_panel', 'assets/images/score_panel.png');
+        this.load.image('button_throw', 'assets/images/button_throw.png');
+        this.load.image('success_effect', 'assets/images/success_effect.png');
+    }
+
     create() {
-        // Add background - randomly select from office scenario backgrounds (1-5)
-        const randomScenario = Phaser.Math.Between(1, 5);
-        this.background = this.add.image(960, 540, `scenario-${randomScenario}`);
+        // Add background - use the pre-selected scenario
+        this.background = this.add.image(960, 540, `scenario-${this.selectedScenario}`);
         this.background.setDisplaySize(1920, 1080);
         
         // Add trash bin (top left: x=300, y=250) - use new trash bin
